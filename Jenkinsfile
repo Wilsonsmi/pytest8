@@ -1,4 +1,4 @@
-#!groovy
+
 /*
  * Copyright 2016 Testbirds GmbH
  *
@@ -33,7 +33,9 @@ node
 	{
 		checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'c309e468-058f-4f01-b986-84e9270eb8bb', url: 'https://github.com/Wilsonsmi/PytestJenkins']]])
 		workspace =pwd()
-		echo workspace	 
+		echo 'Static code77'
+		echo workspace
+		echo 'Static code44'
 	}
 	stage('static code analysis')
 	{
@@ -43,12 +45,36 @@ node
 			sh '. /home/wison/venv/bin/activate && pip install -U pytest'
 			sh '. /home/wison/venv/bin/activate && pip install -r requirements.txt'
 			sh '. /home/wison/venv/bin/activate && py.test --junit-xml=test_results.xml test || true'
+			//py.test "./python/pytest/test/test_simple_example.py" --junit-xml=test_results.xml || true
+			junit keepLongStdio: true, allowEmptyResults: true, testResults: 'test_results.xml'
+		}
+	}
+	
+	stage('static code analysiseeee')
+	{
+		echo 'Static code'
+		dir('pytest') {
+			//sh 'virtualenv -p . python/pytest/bin/python3 venv'
+			sh 'pip3 install -U pytest'
+			sh 'pip3 install -r requirements.txt'
+			sh '. /home/wison/venv/bin/activate && pytest -s test/test_simple_example.py -v || true'
+			//py.test "./python/pytest/test/test_simple_example.py" --junit-xml=test_results.xml || true
 			junit keepLongStdio: true, allowEmptyResults: true, testResults: 'test_results.xml'
 		}
 	}
 	stage('Static code1')
 	{
 		echo 'Static code1'
+	}
+	stage("test")
+ 	{
+		dir('root')
+		{
+			sh 'python3 Test.py'
+         		sh 'cp /tmp/results.xml Results/results.xml'
+			junit allowEmptyResults: false, keepLongStdio: true, testResults: '**/Results/results.xml'
+			archiveArtifacts allowEmptyArchive: false, artifacts:  '**/Results/results.xml' 
+		}
 	}
 }
 
